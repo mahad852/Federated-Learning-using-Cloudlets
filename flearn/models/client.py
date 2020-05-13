@@ -1,4 +1,21 @@
 import numpy as np
+import scipy.stats as st
+from scipy.stats import chi2
+
+def find_tux_mean(interval, sample):
+    return st.t.interval(interval, len(sample)-1, loc=np.mean(sample), scale=st.sem(sample))[1]
+
+def take_sample(mu=10, sigma=4, n=1000):
+    return np.random.normal(mu, sigma, n)
+
+def find_tux_std(interval, sample):
+    return (((len(sample) - 1) * (np.std(sample, ddof =1) **2) )/chi2.ppf((1 - interval)/2, len(sample) - 1)) ** 0.5
+
+def find_tux(tux_mean, tux_std):
+    return tux_mean + (2 * tux_std)
+
+
+
 
 class Client(object):
     
@@ -10,6 +27,9 @@ class Client(object):
         self.eval_data = {k: np.array(v) for k, v in eval_data.items()}
         self.num_samples = len(self.train_data['y'])
         self.test_samples = len(self.eval_data['y'])
+        self.eval_samples = len(self.eval_data['y'])
+
+        self.total_samples = self.num_samples + self.test_samples + self.eval_samples
 
     def set_params(self, model_params):
         '''set model parameters'''
@@ -30,6 +50,10 @@ class Client(object):
         comp = self.model.flops * self.num_samples
         bytes_r = self.model.size
         return ((self.num_samples, grads), (bytes_w, comp, bytes_r))
+    
+    def find_total_time(self, batch_size, mu=10, sigma=4):
+        total_batches = int(self.total_samples/batch_size)
+        return np.sum(np.random.normal(mu, sigma, total_batches))
 
     def solve_inner(self, num_epochs=1, batch_size=10):
         '''Solves local optimization problem
@@ -41,11 +65,14 @@ class Client(object):
             2: comp: number of FLOPs executed in training process
             2: bytes_write: number of bytes transmitted
         '''
+        total_time = self.find_total_time(batch_size)
+        sample = take_sample()
+        tux = find_tux(find_tux_mean(0.95, sample), find_tux_std(0.95, sample))
 
         bytes_w = self.model.size
         soln, comp = self.model.solve_inner(self.train_data, num_epochs, batch_size)
         bytes_r = self.model.size
-        return (self.num_samples, soln), (bytes_w, comp, bytes_r)
+        return (self.num_samples, soln), (bytes_w, comp, bytes_r),  int(self.total_samples/batch_size), tux, total_time
 
     def solve_iters(self, num_iters=1, batch_size=10):
         '''Solves local optimization problem

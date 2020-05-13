@@ -5,9 +5,10 @@ import random
 import os
 import tensorflow as tf
 from flearn.utils.model_utils import read_data
+import sys
 
 # GLOBAL PARAMETERS
-OPTIMIZERS = ['fedavg', 'fedprox', 'feddane', 'fedddane', 'fedsgd', 'fedprox_origin']
+OPTIMIZERS = ['fedavg', 'fedprox', 'feddane', 'fedddane', 'fedsgd', 'fedprox_origin', 'fedcloudlet']
 DATASETS = ['sent140', 'nist', 'shakespeare', 'mnist', 
 'synthetic_iid', 'synthetic_0_0', 'synthetic_0.5_0.5', 'synthetic_1_1']  # NIST is EMNIST in the paepr
 
@@ -32,56 +33,69 @@ def read_options():
                         help='name of optimizer;',
                         type=str,
                         choices=OPTIMIZERS,
-                        default='fedavg')
+                        default='fedavg',
+                        action="store")
     parser.add_argument('--dataset',
                         help='name of dataset;',
                         type=str,
                         choices=DATASETS,
-                        default='nist')
+                        default='nist',
+                        action="store")
     parser.add_argument('--model',
                         help='name of model;',
                         type=str,
-                        default='stacked_lstm.py')
+                        default='stacked_lstm.py',
+                        action="store")
     parser.add_argument('--num_rounds',
                         help='number of rounds to simulate;',
                         type=int,
-                        default=-1)
+                        default=-1,
+                        action="store")
     parser.add_argument('--eval_every',
                         help='evaluate every ____ rounds;',
                         type=int,
-                        default=-1)
+                        default=-1,
+                        action="store")
     parser.add_argument('--clients_per_round',
                         help='number of clients trained per round;',
                         type=int,
-                        default=-1)
+                        default=-1,
+                        action="store")
     parser.add_argument('--batch_size',
                         help='batch size when clients train on data;',
                         type=int,
-                        default=10)
+                        default=10,
+                        action="store")
     parser.add_argument('--num_epochs', 
                         help='number of epochs when clients train on data;',
                         type=int,
-                        default=1)
+                        default=1,
+                        action="store")
     parser.add_argument('--num_iters',
                         help='number of iterations when clients train on data;',
                         type=int,
-                        default=1)
+                        default=1,
+                        action="store")
     parser.add_argument('--learning_rate',
                         help='learning rate for inner solver;',
                         type=float,
-                        default=0.003)
+                        default=0.003,
+                        action="store")
     parser.add_argument('--mu',
                         help='constant for prox;',
                         type=float,
-                        default=0)
+                        default=0,
+                        action="store")
     parser.add_argument('--seed',
                         help='seed for randomness;',
                         type=int,
-                        default=0)
+                        default=0,
+                        action="store")
     parser.add_argument('--drop_percent',
                         help='percentage of slow devices',
                         type=float,
-                        default=0.1)
+                        default=0.1,
+                        action="store")
 
 
     try: parsed = vars(parser.parse_args())
@@ -119,6 +133,7 @@ def read_options():
     return parsed, learner, optimizer
 
 def main():
+    print("SYS ARGV:", sys.argv[2] )
     # suppress tf warnings
     tf.logging.set_verbosity(tf.logging.WARN)
     
