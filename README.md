@@ -2,7 +2,7 @@
 This code repository uses a modified version of the FedProx repository (you can find it inside the FedProx folder) to support the idea of off-loading local training of Machine Learning models from edge device to cloudlets, which are mini-cloud networks.
 
 ##Federated Learning -- a brief introduction
-The following serves as a very higher level overview of Federated Learning. For a better overview, you can visit [this blog] (https://ai.googleblog.com/2017/04/federated-learning-collaborative.html) by Google.
+The following serves as a very higher level overview of Federated Learning. For a better overview, you can visit [this blog] (https://ai.googleblog.com/2017/04/federated-learning-collaborative.html).
 
 Federated Learning is a process that allows model training on user data without the user's data being stored in a central database. This is made possible by having devices locally train Machine Learning models on their end and then sending back the updates from their trainig to a central server that averages/aggregates model updates from all devices to create a global model. 
 
